@@ -1,0 +1,62 @@
+substitutions:
+  name: atoms3-echo
+  friendly_name: AtomS3 Echo
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/YOUR_USERNAME/home_assistant_atoms3_lite_echo_base
+      ref: main
+    components: [m5echo_base]
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  libraries:
+    - Wire
+    - ESP_I2S
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: arduino
+
+logger:
+
+api:
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+# --- M5 Echo Base Audio ---
+
+m5echo_base:
+  id: echo_base_hub
+  sample_rate: 16000
+
+speaker:
+  - platform: m5echo_base
+    id: echo_speaker
+    m5echo_base_id: echo_base_hub
+    volume: 80%
+
+microphone:
+  - platform: m5echo_base
+    id: echo_mic
+    m5echo_base_id: echo_base_hub
+
+media_player:
+  - platform: speaker
+    id: echo_media_player
+    name: "${friendly_name} Audio"
+    announcement_pipeline:
+      speaker: echo_speaker
+      format: WAV
+      sample_rate: 16000
+      num_channels: 2
+    buffer_size: 4000
+    codec_support_enabled: false
