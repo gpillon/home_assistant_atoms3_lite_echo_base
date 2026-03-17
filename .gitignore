@@ -24,5 +24,6 @@ build/
 .DS_Store
 Thumbs.db
 
-# Secrets
+# Secrets and private configs
 secrets.yaml
+*.private.yaml

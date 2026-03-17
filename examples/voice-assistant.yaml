@@ -5,7 +5,7 @@ substitutions:
 external_components:
   - source:
       type: git
-      url: https://github.com/YOUR_USERNAME/home_assistant_atoms3_lite_echo_base
+      url: https://github.com/gpillon/home_assistant_atoms3_lite_echo_base
       ref: main
     components: [m5echo_base]
 
@@ -39,6 +39,12 @@ wifi:
     password: !secret fallback_ap_password
 
 captive_portal:
+
+globals:
+  - id: mic_enabled
+    type: bool
+    restore_value: no
+    initial_value: "true"
 
 # --- M5 Echo Base Audio ---
 
@@ -137,11 +143,14 @@ binary_sensor:
           - OFF for at least 50ms
         then:
           - if:
-              condition: voice_assistant.is_running
+              condition:
+                lambda: "return id(mic_enabled);"
               then:
+                - lambda: "id(mic_enabled) = false;"
                 - voice_assistant.stop:
                 - script.execute: led_idle_no_mic
               else:
+                - lambda: "id(mic_enabled) = true;"
                 - voice_assistant.start_continuous:
                 - script.execute: led_idle
 
@@ -161,8 +170,14 @@ voice_assistant:
 
   on_client_connected:
     - delay: 2s
-    - script.execute: led_idle
-    - voice_assistant.start_continuous:
+    - if:
+        condition:
+          lambda: "return id(mic_enabled);"
+        then:
+          - script.execute: led_idle
+          - voice_assistant.start_continuous:
+        else:
+          - script.execute: led_idle_no_mic
 
   on_client_disconnected:
     - voice_assistant.stop:
@@ -203,7 +218,11 @@ voice_assistant:
 
   on_end:
     - delay: 200ms
-    - script.execute: led_idle
+    - if:
+        condition:
+          lambda: "return id(mic_enabled);"
+        then:
+          - script.execute: led_idle
 
   on_error:
     - light.turn_on:
@@ -214,4 +233,10 @@ voice_assistant:
         brightness: 100%
         effect: none
     - delay: 2s
-    - script.execute: led_idle
+    - if:
+        condition:
+          lambda: "return id(mic_enabled);"
+        then:
+          - script.execute: led_idle
+        else:
+          - script.execute: led_idle_no_mic

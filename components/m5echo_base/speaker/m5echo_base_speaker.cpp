@@ -12,6 +12,7 @@ void M5EchoBaseSpeaker::setup() {
     return;
   }
 
+  this->audio_stream_info_ = audio::AudioStreamInfo(16, 2, this->hub_->get_sample_rate());
   this->state_ = speaker::STATE_STOPPED;
   this->set_volume(this->initial_volume_);
   this->set_mute_state(false);

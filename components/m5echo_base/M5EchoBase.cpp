@@ -266,8 +266,8 @@ bool M5EchoBase::record(uint8_t* buffer, int size)
 
     size_t bytes_read = 0;
 #if USE_NEW_I2S_API
-        bytes_read    = I2S.readBytes((char*)buffer, bytes_to_record);
-        if (bytes_read < 0) {
+        bytes_read = I2S.readBytes((char*)buffer, bytes_to_record);
+        if (bytes_read == 0) {
             ESP_LOGI(TAG, "Recording failed during I2S read");
             return false;
         }
@@ -286,20 +286,16 @@ bool M5EchoBase::play(const uint8_t* buffer, int size)
     size_t bytes_written = 0;
 #if USE_NEW_I2S_API
     bytes_written = I2S.write(buffer, size);
-    if (bytes_written < 0) {
+    if (bytes_written == 0) {
         ESP_LOGI(TAG, "Playback failed");
         return false;
     }
 #else
-    esp_err_t err        = i2s_write(i2s_num, buffer, size, &bytes_written, portMAX_DELAY);
+    esp_err_t err = i2s_write(i2s_num, buffer, size, &bytes_written, portMAX_DELAY);
     if (err != ESP_OK) {
         ESP_LOGI(TAG, "Playback failed");
         return false;
     }
-#endif
-#if USE_NEW_I2S_API
-
-#else
     i2s_zero_dma_buffer(i2s_num);
 #endif
     return true;

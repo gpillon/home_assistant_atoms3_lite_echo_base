@@ -37,7 +37,7 @@ Just plug the AtomS3 Lite onto the Echo Base — no soldering required.
 external_components:
   - source:
       type: git
-      url: https://github.com/YOUR_USERNAME/home_assistant_atoms3_lite_echo_base
+      url: https://github.com/gpillon/home_assistant_atoms3_lite_echo_base
       ref: main
     components: [m5echo_base]
 ```
@@ -59,6 +59,8 @@ esp32:
 m5echo_base:
   id: echo_base_hub
   sample_rate: 16000
+  volume_min: 45   # ES8311 value at user 1% (below this = inaudible)
+  volume_max: 85   # ES8311 value at user 100% (above this = distortion)
 ```
 
 ### 3. Add speaker and microphone
@@ -159,6 +161,8 @@ This project includes vendored driver code with their original licenses:
 
 - **ES8311 codec driver** (`es8311.cpp`, `es8311.h`, `es8311_reg.h`) — Copyright 2015-2022 Espressif Systems, Apache-2.0
 - **M5EchoBase driver** (`M5EchoBase.cpp`, `M5EchoBase.h`) — Copyright 2024 M5Stack Technology CO LTD, MIT
+
+This project is licensed under GPL-3.0-or-later, except for vendored third-party components, which remain under their original licenses (Apache-2.0 and MIT).
 
 ## Contributing
 

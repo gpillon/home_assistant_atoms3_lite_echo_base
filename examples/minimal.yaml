@@ -5,7 +5,7 @@ substitutions:
 external_components:
   - source:
       type: git
-      url: https://github.com/YOUR_USERNAME/home_assistant_atoms3_lite_echo_base
+      url: https://github.com/gpillon/home_assistant_atoms3_lite_echo_base
       ref: main
     components: [m5echo_base]
 

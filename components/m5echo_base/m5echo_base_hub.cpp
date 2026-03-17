@@ -5,12 +5,20 @@ namespace m5echo_base {
 
 static const char *const TAG = "m5echo_base.hub";
 
+int M5EchoBaseHub::map_volume_(float volume) const {
+  if (volume <= 0.0f) return 0;
+  if (volume >= 1.0f) return this->volume_max_;
+  return this->volume_min_ +
+         static_cast<int>(volume * (this->volume_max_ - this->volume_min_));
+}
+
 bool M5EchoBaseHub::init_if_needed_() {
   if (this->ready_) {
     return true;
   }
 
-  ESP_LOGI(TAG, "Initializing shared M5EchoBase at %u Hz", this->sample_rate_);
+  ESP_LOGI(TAG, "Initializing M5EchoBase at %u Hz (volume range %u–%u)",
+           this->sample_rate_, this->volume_min_, this->volume_max_);
 
   this->ready_ = this->echo_.init(
       this->sample_rate_,
@@ -28,7 +36,7 @@ bool M5EchoBaseHub::init_if_needed_() {
   }
 
   this->echo_.setMute(this->mute_);
-  this->echo_.setSpeakerVolume(static_cast<int>(this->volume_ * 100.0f));
+  this->echo_.setSpeakerVolume(this->map_volume_(this->volume_));
   delay(10);
   return true;
 }
@@ -48,8 +56,7 @@ bool M5EchoBaseHub::play(const uint8_t *data, size_t length) {
   }
 
   this->echo_.setMute(this->mute_);
-  this->echo_.setSpeakerVolume(static_cast<int>(this->volume_ * 100.0f));
-  delay(2);
+  this->echo_.setSpeakerVolume(this->map_volume_(this->volume_));
 
   return this->echo_.play(data, static_cast<int>(length));
 }
@@ -71,7 +78,7 @@ void M5EchoBaseHub::set_volume(float volume) {
   this->volume_ = volume;
 
   if (this->ready_) {
-    this->echo_.setSpeakerVolume(static_cast<int>(this->volume_ * 100.0f));
+    this->echo_.setSpeakerVolume(this->map_volume_(this->volume_));
   }
 }
 

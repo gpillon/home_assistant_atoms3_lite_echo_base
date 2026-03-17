@@ -8,7 +8,7 @@ To use this component from a Git repository, add the following to your ESPHome d
 external_components:
   - source:
       type: git
-      url: https://github.com/YOUR_USERNAME/home_assistant_atoms3_lite_echo_base
+      url: https://github.com/gpillon/home_assistant_atoms3_lite_echo_base
       ref: main
     components: [m5echo_base]
 ```
@@ -21,6 +21,8 @@ The hub component that initializes the ES8311 codec, I2S bus, and I2C GPIO expan
 m5echo_base:
   id: echo_base_hub
   sample_rate: 16000
+  volume_min: 45
+  volume_max: 85
 ```
 
 ### Configuration Variables
@@ -29,6 +31,20 @@ m5echo_base:
 |----------|------|---------|-------------|
 | `id` | ID | *Required* | Component ID used to reference the hub from speaker/microphone |
 | `sample_rate` | int | `16000` | Audio sample rate in Hz. Only `16000` is currently supported |
+| `volume_min` | int | `45` | ES8311 register value mapped to user volume 1%. Values below this are inaudible on the Echo Base hardware |
+| `volume_max` | int | `85` | ES8311 register value mapped to user volume 100%. Values above this cause distortion on the Echo Base hardware |
+
+### Volume Mapping
+
+The ES8311 codec on the Echo Base has a hardware DAC volume range of 0–100, but only a portion of that range produces clean audio. Below ~45 the output is inaudible, and above ~85 it clips/distorts.
+
+This component automatically maps the user-facing volume (0%–100%) to the usable hardware range:
+
+- **0%** → hardware 0 (true silence)
+- **1%** → hardware `volume_min` (45 by default, threshold of audibility)
+- **100%** → hardware `volume_max` (85 by default, maximum clean output)
+
+If your specific unit behaves differently, you can tune `volume_min` and `volume_max` to match.
 
 ---
 
